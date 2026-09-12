@@ -1,6 +1,9 @@
 #ifndef CX_CORE_H
 #define CX_CORE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #if defined(__GNUC__) || defined(__clang__)
   #define CX_API __attribute__((visibility("default")))
@@ -12,5 +15,9 @@
 #define CX_UNUSED(x) ((void)(x))
 #endif
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // CX_CORE_H

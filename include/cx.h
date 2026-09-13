@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 
+#include "cx_allocator.h"
 #include "cx_core.h"
 #include "cx_types.h"
 

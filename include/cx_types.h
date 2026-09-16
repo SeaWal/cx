@@ -22,8 +22,6 @@ typedef int64_t   i64;
 typedef float     f32;
 typedef double    f64;
 
-typedef bool      bool;
-
 typedef size_t    size_t;
 typedef size_t    usize;
 

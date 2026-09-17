@@ -23,7 +23,7 @@ struct cx_allocator {
      * @param align Alignment in bytes.
      * @return Pointer to allocated memory, or NULL on failure.
      */
-    void* (*alloc)(size_t size, size_t align);
+    void* (*alloc)(void* ctx, size_t size, size_t align);
 
     /*
      * Deallocates a previously allocated block of memory
@@ -32,7 +32,14 @@ struct cx_allocator {
      * @param size  Size of the block (for debugging/tracking).
      * @param align Alignment of the block (for debugging/tracking).
      */
-    void  (*dealloc)(void* ptr, size_t size, size_t align);
+    void  (*dealloc)(void* ctx, void* ptr, size_t size, size_t align);
+
+    /*
+     * Allocato-specific context data.
+     *
+     * Used by allocator to access any internal state.
+     */
+    void* ctx;
 };
 
 /*
@@ -55,7 +62,6 @@ typedef struct cx_arena cx_arena;
 
 struct cx_arena {
     cx_allocator allocator;
-
     u8* buffer;
     size_t capacity;
     size_t pos;

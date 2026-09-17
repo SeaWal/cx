@@ -3,12 +3,14 @@
 #include "cx_allocator.h"
 #include "cx_core.h"
 
-static void* cx_general_alloc(size_t size, size_t align) {
+static void* cx_general_alloc(void* ctx, size_t size, size_t align) {
+    CX_UNUSED(ctx);
     CX_UNUSED(align);
     return malloc(size);
 }
 
-static void cx_general_dealloc(void* ptr, size_t size, size_t align) {
+static void cx_general_dealloc(void* ctx, void* ptr, size_t size, size_t align) {
+    CX_UNUSED(ctx);
     CX_UNUSED(size);
     CX_UNUSED(align);
     free(ptr);
@@ -18,5 +20,6 @@ CX_API cx_allocator cx_general_allocator(void) {
     return (cx_allocator) {
         .alloc = cx_general_alloc,
         .dealloc = cx_general_dealloc,
+        .ctx = NULL,
     };
 }

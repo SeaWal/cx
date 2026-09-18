@@ -3,6 +3,22 @@
 #include "cx_allocator.h"
 #include "cx_core.h"
 
+void* cx_alloc(cx_allocator* allocator, size_t size, size_t align) {
+    if(allocator == NULL || allocator->alloc == NULL) {
+        return NULL;
+    }
+
+    return allocator->alloc(allocator->ctx, size, align);
+}
+
+void cx_dealloc(cx_allocator* allocator, void* ptr, size_t size, size_t align) {
+    if(allocator == NULL || allocator->dealloc == NULL) {
+        return;
+    }
+
+    allocator->dealloc(allocator->ctx, ptr, size, align);
+}
+
 static void* cx_general_alloc(void* ctx, size_t size, size_t align) {
     CX_UNUSED(ctx);
     CX_UNUSED(align);

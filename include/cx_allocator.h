@@ -19,7 +19,8 @@ struct cx_allocator {
     /*
      * Allocates a block of memory
      *
-     * @param size  Size in bytes.
+     * @param ctx Allocator-specific context data.
+     * @param size Size in bytes.
      * @param align Alignment in bytes.
      * @return Pointer to allocated memory, or NULL on failure.
      */
@@ -28,8 +29,9 @@ struct cx_allocator {
     /*
      * Deallocates a previously allocated block of memory
      * 
-     * @param ptr   Pointer to the memory block.
-     * @param size  Size of the block (for debugging/tracking).
+     * @param ctx Allocator-specific context data.
+     * @param ptr Pointer to the memory block.
+     * @param size Size of the block (for debugging/tracking).
      * @param align Alignment of the block (for debugging/tracking).
      */
     void  (*dealloc)(void* ctx, void* ptr, size_t size, size_t align);
@@ -41,6 +43,31 @@ struct cx_allocator {
      */
     void* ctx;
 };
+
+/*
+ * Generic interface for allocation in cx.
+ *
+ * Calls the alloc function of the given allocator
+ * like `allocator->alloc(allocator->ctx, size, align)`
+ * 
+ * @param allocator The allocator to use for getting memory.
+ * @param size Size of the block in bytes.
+ * @param align Alignment of the block.
+ * @return Pointer to allocated memory, or NULL on failure.
+ */
+void* cx_alloc(cx_allocator* allocator, size_t size, size_t align);
+
+/*
+ * Generic interface for deallocation in cx.
+ *
+ * Calls the dealloc function of the given allocator
+ * like `allocator->dealloc(allocator->ctx, ptr, size, align)`
+ * 
+ * @param ptr Pointer to the memory block.
+ * @param size Size of the block (for debugging/tracking).
+ * @param align Alignment of the block (for debugging/tracking).
+ */
+void cx_dealloc(cx_allocator* allocator, void* ptr, size_t size, size_t align);
 
 /*
  * Creates the default system allocator.

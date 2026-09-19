@@ -22,6 +22,11 @@ void cx_dealloc(cx_allocator* allocator, void* ptr, size_t size, size_t align) {
 static void* cx_general_alloc(void* ctx, size_t size, size_t align) {
     CX_UNUSED(ctx);
     CX_UNUSED(align);
+    
+    if(size == 0) {
+        return NULL;
+    }
+    
     return malloc(size);
 }
 

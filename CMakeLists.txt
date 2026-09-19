@@ -46,3 +46,4 @@ function(cx_add_test TEST_NAME SOURCE_FILE)
 endfunction()
 
 cx_add_test(test_general_allocator tests/test_general_alloc.c)
+cx_add_test(test_arena_allocator tests/test_arena_alloc.c)

@@ -3,7 +3,7 @@
 #include "cx_allocator.h"
 #include "cx_core.h"
 
-void* cx_alloc(cx_allocator* allocator, size_t size, size_t align) {
+CX_API void* cx_alloc(cx_allocator* allocator, size_t size, size_t align) {
     if(allocator == NULL || allocator->alloc == NULL) {
         return NULL;
     }
@@ -11,7 +11,7 @@ void* cx_alloc(cx_allocator* allocator, size_t size, size_t align) {
     return allocator->alloc(allocator->ctx, size, align);
 }
 
-void cx_dealloc(cx_allocator* allocator, void* ptr, size_t size, size_t align) {
+CX_API void cx_dealloc(cx_allocator* allocator, void* ptr, size_t size, size_t align) {
     if(allocator == NULL || allocator->dealloc == NULL) {
         return;
     }
@@ -26,7 +26,7 @@ static void* cx_general_alloc(void* ctx, size_t size, size_t align) {
     if(size == 0) {
         return NULL;
     }
-    
+
     return malloc(size);
 }
 

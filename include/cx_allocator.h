@@ -55,7 +55,7 @@ struct cx_allocator {
  * @param align Alignment of the block.
  * @return Pointer to allocated memory, or NULL on failure.
  */
-void* cx_alloc(cx_allocator* allocator, size_t size, size_t align);
+CX_API void* cx_alloc(cx_allocator* allocator, size_t size, size_t align);
 
 /*
  * Generic interface for deallocation in cx.
@@ -67,7 +67,7 @@ void* cx_alloc(cx_allocator* allocator, size_t size, size_t align);
  * @param size Size of the block (for debugging/tracking).
  * @param align Alignment of the block (for debugging/tracking).
  */
-void cx_dealloc(cx_allocator* allocator, void* ptr, size_t size, size_t align);
+CX_API void cx_dealloc(cx_allocator* allocator, void* ptr, size_t size, size_t align);
 
 /*
  * Creates the default system allocator.

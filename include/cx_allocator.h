@@ -37,6 +37,23 @@ struct cx_allocator {
     void  (*dealloc)(void* ctx, void* ptr, size_t size, size_t align);
 
     /*
+    * Reallocates a previously allocated block of memory.
+    *
+    * The contents of the original block are preserved up to the smaller
+    * of old_size and new_size.
+    *
+    * If reallocation fails, the original allocation remains valid.
+    *
+    * @param ctx Allocator-specific context data.
+    * @param ptr Pointer to the existing allocation, or NULL.
+    * @param old_size Size of the existing allocation in bytes.
+    * @param new_size Size of the requested allocation in bytes.
+    * @param align Required alignment of the allocation.
+    * @return Pointer to the resized allocation, or NULL on failure.
+    */
+    void* (*realloc)(void* ctx, void* ptr, size_t old_size, size_t new_size, size_t align);
+
+    /*
      * Allocato-specific context data.
      *
      * Used by allocator to access any internal state.
@@ -68,6 +85,28 @@ CX_API void* cx_alloc(cx_allocator* allocator, size_t size, size_t align);
  * @param align Alignment of the block (for debugging/tracking).
  */
 CX_API void cx_dealloc(cx_allocator* allocator, void* ptr, size_t size, size_t align);
+
+/*
+ * Reallocates a previously allocated block of memory.
+ *
+ * The contents of the original block are preserved up to the smaller
+ * of old_size and new_size.
+ *
+ * If reallocation fails, the original allocation remains valid.
+ *
+ * Passing NULL as ptr behaves like cx_alloc().
+ *
+ * Passing zero as new_size releases the allocation and returns NULL.
+ *
+ * @param allocator The allocator to use.
+ * @param ptr Pointer to the existing allocation, or NULL.
+ * @param old_size Size of the old allocation in bytes.
+ * @param new_size Size of the new allocation in bytes.
+ * @param align  Alignment of the allocation.
+ * @return Pointer to the resized allocation, or NULL on failure.
+ */
+
+CX_API void* cx_realloc(cx_allocator* allocator, void* ptr, size_t old_size, size_t new_size, size_t align);
 
 /*
  * Creates the default system allocator.

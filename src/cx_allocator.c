@@ -19,6 +19,14 @@ CX_API void cx_dealloc(cx_allocator* allocator, void* ptr, size_t size, size_t a
     allocator->dealloc(allocator->ctx, ptr, size, align);
 }
 
+CX_API void* cx_realloc(cx_allocator* allocator, void* ptr, size_t old_size, size_t new_size, size_t align) {
+    if(allocator == NULL || allocator->realloc == NULL) {
+        return NULL;
+    }
+
+    return allocator->realloc(allocator->ctx, ptr, old_size, new_size, align);
+}
+
 static void* cx_general_alloc(void* ctx, size_t size, size_t align) {
     CX_UNUSED(ctx);
     CX_UNUSED(align);
@@ -37,10 +45,24 @@ static void cx_general_dealloc(void* ctx, void* ptr, size_t size, size_t align) 
     free(ptr);
 }
 
+static void* cx_general_realloc(void* ctx, void* ptr, size_t old_size, size_t new_size, size_t align) {
+    CX_UNUSED(ctx);
+    CX_UNUSED(old_size);
+    CX_UNUSED(align);
+
+    if(new_size == 0) {
+        free(ptr);
+        return NULL;
+    }
+
+    return realloc(ptr, new_size);
+}
+
 CX_API cx_allocator cx_general_allocator(void) {
     return (cx_allocator) {
         .alloc = cx_general_alloc,
         .dealloc = cx_general_dealloc,
+        .realloc = cx_general_realloc,
         .ctx = NULL,
     };
 }
@@ -98,6 +120,32 @@ static void cx_arena_dealloc(void* ctx, void* ptr, size_t size, size_t align) {
     CX_UNUSED(align);
 }
 
+// allocate new region in arena with new_size and copy old memory to new region
+static void* cx_arena_realloc(void* ctx, void* ptr, size_t old_size, size_t new_size, size_t align) {
+    cx_arena* arena = ctx;
+
+    if(arena == NULL) {
+        return NULL;
+    }
+
+    if(new_size == 0) {
+        return NULL;
+    }
+
+    void* new_ptr = cx_arena_alloc(ctx, new_size, align);
+
+    if(new_ptr == NULL) {
+        return NULL;
+    }
+
+    if(ptr != NULL) {
+        size_t size = new_size > old_size ? new_size : old_size;
+        memcpy(new_ptr, ptr, size);
+    }
+
+    return new_ptr;
+}
+
 CX_API bool cx_arena_init(cx_arena* arena, size_t capacity) {
     if(arena == NULL || capacity == 0) {
         return false;
@@ -115,6 +163,7 @@ CX_API bool cx_arena_init(cx_arena* arena, size_t capacity) {
     arena->allocator = (cx_allocator) {
         .alloc = cx_arena_alloc,
         .dealloc = cx_arena_dealloc,
+        .realloc = cx_arena_realloc,
         .ctx = arena,
     };
 

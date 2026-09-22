@@ -21,7 +21,6 @@ typedef struct cx_vector cx_vector;
 #define cx_vector_create(allocator, type) \
     cx_vector_create_raw(allocator, sizeof(type), _Alignof(type))
 
-
 /*
  * Creates an empty vector using explicit element metadata.
  *
@@ -49,7 +48,7 @@ CX_API void cx_vector_destroy(cx_vector* vector);
  * @param vector Vector to query.
  * @return Number of elements.
  */
-CX_API size_t cx_vector_size(const cx_vector* vector);
+CX_API size_t cx_vector_length(const cx_vector* vector);
 
 /*
  * Returns the number of elements the vector can currently hold.

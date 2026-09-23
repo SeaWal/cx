@@ -240,3 +240,99 @@ CX_API bool cx_vector_shrink_to_fit(cx_vector* vector) {
 
     return cx_vector_resize_storage(vector, vector->length);
 }
+
+CX_API void cx_vector_pop(cx_vector* vector, void* out_value) {
+    if(vector == NULL || vector->length == 0) {
+        return;
+    }
+
+    size_t index = vector->length - 1;
+    size_t offset;
+    if(cx_checked_mul(index, vector->elem_size, &offset)) {
+        return;
+    }
+
+    if(out_value != NULL) {
+        memcpy(out_value, vector->data + offset, vector->elem_size)''
+    }
+
+    vector->length--;
+}
+
+CX_API bool cx_vector_remove(cx_vector* vector, size_t index) {
+    if (vector == NULL || index >= vector->len) {
+        return false;
+    }
+
+    size_t offset;
+    if (!cx_checked_mul(index, vector->elem_size, &offset)) {
+        return false;
+    }
+
+    size_t elements_after = vector->length - index - 1;
+
+    if (elements_after > 0) {
+        size_t bytes_after;
+
+        if (!cx_checked_mul(elements_after, vector->elem_size, &bytes_after)) {
+            return false;
+        }
+
+        memmove(
+            vector->data + offset,
+            vector->data + offset + vector->elem_size,
+            bytes_after
+        );
+    }
+
+    vector->length--;
+
+    return true;
+}
+
+CX_API bool cx_vector_insert_ptr(cx_vector* vector, size_t index, const void* value) {
+    if (vector == NULL || value == NULL || index > vector->len) {
+        return false;
+    }
+
+    if (vector->len == SIZE_MAX) {
+        return false;
+    }
+
+    size_t required = vector->len + 1;
+
+    if (required > vector->capacity) {
+        size_t new_capacity = cx_vector_grow_capacity(vector, required);
+
+        if (!cx_vector_resize_storage(vector, new_capacity)) {
+            return false;
+        }
+    }
+
+    size_t offset;
+    if (!cx_checked_mul(index, vector->elem_size, &offset)) {
+        return false;
+    }
+
+    size_t elements_after = vector->len - index;
+
+    if (elements_after > 0) {
+        size_t bytes_after;
+
+        if (!cx_checked_mul(elements_after, vector->elem_size, &bytes_after)) {
+            return false;
+        }
+
+        memmove(
+            vector->data + offset + vector->element_size,
+            vector->data + offset,
+            bytes_after
+        );
+    }
+
+    memcpy(vector->data + offset, value, vector->elem_size);
+
+    vector->len++;
+
+    return true;
+}

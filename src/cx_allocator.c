@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 
 #include "cx_allocator.h"
 #include "cx_core.h"

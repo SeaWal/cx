@@ -7,6 +7,7 @@ project(cx
 
 add_library(cx STATIC 
     src/cx_allocator.c
+    src/cx_vector.c
 )
 
 target_include_directories(cx PUBLIC
@@ -47,3 +48,4 @@ endfunction()
 
 cx_add_test(test_general_allocator tests/test_general_alloc.c)
 cx_add_test(test_arena_allocator tests/test_arena_alloc.c)
+cx_add_test(test_vector tests/test_vector.c)

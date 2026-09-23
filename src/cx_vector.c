@@ -250,7 +250,7 @@ CX_API bool cx_vector_pop(cx_vector* vector, void* out_value) {
 
     size_t index = vector->length - 1;
     size_t offset;
-    if(cx_checked_mul(index, vector->elem_size, &offset)) {
+    if(!cx_checked_mul(index, vector->elem_size, &offset)) {
         return false;
     }
 

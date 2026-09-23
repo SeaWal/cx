@@ -1,5 +1,5 @@
 #ifndef CX_VECTOR_H
-#define CX_VECTOR 
+#define CX_VECTOR_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -86,7 +86,7 @@ CX_API bool cx_vector_is_empty(const cx_vector* vector);
  * @param value Pointer to the element to copy.
  * @return true on success, false on failure.
  */
-CX_API void cx_vector_push_ptr(cx_vector* vector, const void* value);
+CX_API bool cx_vector_push_ptr(cx_vector* vector, const void* value);
 
 /*
  * Returns a pointer to the element at the specified index.
@@ -140,7 +140,7 @@ CX_API bool cx_vector_shrink_to_fit(cx_vector* vector);
  * @param vector Vector to pop from.
  * @param out_element Destination for the removed element, or NULL.
  */
-CX_API void cx_vector_pop(cx_vector* vector, void* out_value)
+CX_API bool cx_vector_pop(cx_vector* vector, void* out_value);
 
 /*
  * Removes the element at the specified index.

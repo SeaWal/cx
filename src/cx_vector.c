@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 
 #include "cx_allocator.h"
 #include "cx_core.h"
@@ -129,7 +130,7 @@ CX_API void cx_vector_destroy(cx_vector* vector) {
         cx_dealloc(vector->allocator, vector->data, data_size, vector->elem_align);
     }
 
-    cx_dealloc(vector->allocator, vector, sizeof(vector), _Alignof(vector));
+    cx_dealloc(vector->allocator, vector, sizeof(cx_vector), _Alignof(cx_vector));
 }
 
 CX_API size_t cx_vector_length(const cx_vector* vector) {
@@ -140,7 +141,7 @@ CX_API size_t cx_vector_length(const cx_vector* vector) {
     return vector->length;
 }
 
-CX_API cx_vector_capacity(const cx_vector* vector) {
+CX_API size_t cx_vector_capacity(const cx_vector* vector) {
     if(vector == NULL) {
         return 0;
     }
@@ -152,32 +153,33 @@ CX_API bool cx_vector_is_empty(const cx_vector* vector) {
     return vector == NULL || vector->length == 0;
 }
 
-// TODO: handle error outcomes
-CX_API void cx_vector_push_ptr(cx_vector* vector, const void* value) {
+CX_API bool cx_vector_push_ptr(cx_vector* vector, const void* value) {
     if (vector == NULL || value == NULL) {
         return false;
     }
 
     if(vector->length == vector->capacity) {
         if(vector->length == SIZE_MAX) {
-            return; // return error here?
+            return false;
         }
 
         size_t required = vector->length + 1;
         size_t new_capacity = cx_vector_grow_capacity(vector, required);
 
         if(!cx_vector_resize_storage(vector, new_capacity)) {
-            return; // handle error
+            return false;
         }
     }
 
     size_t offset;
     if(!cx_checked_mul(vector->length, vector->elem_size, &offset)) {
-        return; // overflowed, handle error
+        return false;
     }
 
     memcpy(vector->data + offset, value, vector->elem_size);
     vector->length++;
+
+    return true;
 }
 
 CX_API void* cx_vector_get(cx_vector* vector, size_t index) {
@@ -200,7 +202,7 @@ CX_API const void* cx_vector_get_const(const cx_vector* vector, size_t index) {
 
     size_t offset;
 
-    if (!cx_checked_mul(index, vector->element_size, &offset)) {
+    if (!cx_checked_mul(index, vector->elem_size, &offset)) {
         return NULL;
     }
 
@@ -234,33 +236,34 @@ CX_API bool cx_vector_shrink_to_fit(cx_vector* vector) {
     }
 
     // vector already small enough
-    if(vector->len == vector->capacity) {
+    if(vector->length == vector->capacity) {
         return true;
     }
 
     return cx_vector_resize_storage(vector, vector->length);
 }
 
-CX_API void cx_vector_pop(cx_vector* vector, void* out_value) {
+CX_API bool cx_vector_pop(cx_vector* vector, void* out_value) {
     if(vector == NULL || vector->length == 0) {
-        return;
+        return false;
     }
 
     size_t index = vector->length - 1;
     size_t offset;
     if(cx_checked_mul(index, vector->elem_size, &offset)) {
-        return;
+        return false;
     }
 
     if(out_value != NULL) {
-        memcpy(out_value, vector->data + offset, vector->elem_size)''
+        memcpy(out_value, vector->data + offset, vector->elem_size);
     }
 
     vector->length--;
+    return true;
 }
 
 CX_API bool cx_vector_remove(cx_vector* vector, size_t index) {
-    if (vector == NULL || index >= vector->len) {
+    if (vector == NULL || index >= vector->length) {
         return false;
     }
 
@@ -291,15 +294,15 @@ CX_API bool cx_vector_remove(cx_vector* vector, size_t index) {
 }
 
 CX_API bool cx_vector_insert_ptr(cx_vector* vector, size_t index, const void* value) {
-    if (vector == NULL || value == NULL || index > vector->len) {
+    if (vector == NULL || value == NULL || index > vector->length) {
         return false;
     }
 
-    if (vector->len == SIZE_MAX) {
+    if (vector->length == SIZE_MAX) {
         return false;
     }
 
-    size_t required = vector->len + 1;
+    size_t required = vector->length + 1;
 
     if (required > vector->capacity) {
         size_t new_capacity = cx_vector_grow_capacity(vector, required);
@@ -314,7 +317,7 @@ CX_API bool cx_vector_insert_ptr(cx_vector* vector, size_t index, const void* va
         return false;
     }
 
-    size_t elements_after = vector->len - index;
+    size_t elements_after = vector->length - index;
 
     if (elements_after > 0) {
         size_t bytes_after;
@@ -324,7 +327,7 @@ CX_API bool cx_vector_insert_ptr(cx_vector* vector, size_t index, const void* va
         }
 
         memmove(
-            vector->data + offset + vector->element_size,
+            vector->data + offset + vector->elem_size,
             vector->data + offset,
             bytes_after
         );
@@ -332,7 +335,7 @@ CX_API bool cx_vector_insert_ptr(cx_vector* vector, size_t index, const void* va
 
     memcpy(vector->data + offset, value, vector->elem_size);
 
-    vector->len++;
+    vector->length++;
 
     return true;
 }

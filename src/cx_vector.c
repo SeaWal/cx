@@ -10,7 +10,7 @@
 #define CX_VECTOR_GROWTH_FACTOR 2
 
 struct cx_vector {
-    cx_allocator allocator;
+    cx_allocator* allocator;
     u8* data;
     size_t length;
     size_t capacity;
@@ -80,7 +80,7 @@ static bool cx_vector_resize_storage(cx_vector* vector, size_t new_capacity) {
     }
 
     u8* data = cx_realloc(
-        &vector->allocator,
+        vector->allocator,
         vector->data,
         old_size,
         new_size,
@@ -109,7 +109,7 @@ CX_API cx_vector* cx_vector_create_raw(cx_allocator* allocator, size_t element_s
     }
 
     *vector = (cx_vector) {
-        .allocator = *allocator,
+        .allocator = allocator,
         .data = NULL,
         .length = 0,
         .capacity = 0,
@@ -127,10 +127,10 @@ CX_API void cx_vector_destroy(cx_vector* vector) {
 
     if(vector->data != NULL) {
         size_t data_size = vector->capacity * vector->elem_size;
-        cx_dealloc(&vector->allocator, vector->data, data_size, vector->elem_align);
+        cx_dealloc(vector->allocator, vector->data, data_size, vector->elem_align);
     }
 
-    cx_dealloc(&vector->allocator, vector, sizeof(cx_vector), _Alignof(cx_vector));
+    cx_dealloc(vector->allocator, vector, sizeof(cx_vector), _Alignof(cx_vector));
 }
 
 CX_API size_t cx_vector_length(const cx_vector* vector) {

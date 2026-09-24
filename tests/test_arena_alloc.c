@@ -164,6 +164,157 @@ static int test_arena_small_capacity(void) {
     return 0;
 }
 
+static int test_arena_realloc(void)
+{
+    cx_arena arena;
+
+    if (!cx_arena_init(&arena, 4096)) {
+        fprintf(stderr, "test_arena_realloc: arena initialization failed\n");
+        return 1;
+    }
+
+    cx_allocator allocator = cx_arena_allocator(&arena);
+
+    u8* data = cx_realloc(
+        &allocator,
+        NULL,
+        0,
+        16,
+        _Alignof(u8)
+    );
+
+    if (data == NULL) {
+        fprintf(stderr, "test_arena_realloc: initial allocation failed\n");
+        cx_arena_destroy(&arena);
+        return 1;
+    }
+
+    for (size_t i = 0; i < 16; i++) {
+        data[i] = (u8)i;
+    }
+
+    u8* resized = cx_realloc(
+        &allocator,
+        data,
+        16,
+        32,
+        _Alignof(u8)
+    );
+
+    if (resized == NULL) {
+        fprintf(stderr, "test_arena_realloc: grow failed\n");
+        cx_arena_destroy(&arena);
+        return 1;
+    }
+
+    for (size_t i = 0; i < 16; i++) {
+        if (resized[i] != (u8)i) {
+            fprintf(
+                stderr,
+                "test_arena_realloc: data corrupted after grow at %zu\n",
+                i
+            );
+            cx_arena_destroy(&arena);
+            return 1;
+        }
+    }
+
+    for (size_t i = 16; i < 32; i++) {
+        resized[i] = (u8)i;
+    }
+
+    u8* shrunk = cx_realloc(
+        &allocator,
+        resized,
+        32,
+        8,
+        _Alignof(u8)
+    );
+
+    if (shrunk == NULL) {
+        fprintf(stderr, "test_arena_realloc: shrink failed\n");
+        cx_arena_destroy(&arena);
+        return 1;
+    }
+
+    for (size_t i = 0; i < 8; i++) {
+        if (shrunk[i] != (u8)i) {
+            fprintf(
+                stderr,
+                "test_arena_realloc: data corrupted after shrink at %zu\n",
+                i
+            );
+            cx_arena_destroy(&arena);
+            return 1;
+        }
+    }
+
+    void* result = cx_realloc(
+        &allocator,
+        shrunk,
+        8,
+        0,
+        _Alignof(u8)
+    );
+
+    if (result != NULL) {
+        fprintf(
+            stderr,
+            "test_arena_realloc: zero-size realloc returned non-NULL\n"
+        );
+        cx_arena_destroy(&arena);
+        return 1;
+    }
+
+    cx_arena_destroy(&arena);
+    return 0;
+}
+
+static int test_arena_realloc_null(void)
+{
+    cx_arena arena;
+
+    if (!cx_arena_init(&arena, 4096)) {
+        fprintf(
+            stderr,
+            "test_arena_realloc_null: arena initialization failed\n"
+        );
+        return 1;
+    }
+
+    cx_allocator allocator = cx_arena_allocator(&arena);
+
+    int* value = cx_realloc(
+        &allocator,
+        NULL,
+        0,
+        sizeof(int),
+        _Alignof(int)
+    );
+
+    if (value == NULL) {
+        fprintf(
+            stderr,
+            "test_arena_realloc_null: allocation failed\n"
+        );
+        cx_arena_destroy(&arena);
+        return 1;
+    }
+
+    *value = 42;
+
+    if (*value != 42) {
+        fprintf(
+            stderr,
+            "test_arena_realloc_null: value was corrupted\n"
+        );
+        cx_arena_destroy(&arena);
+        return 1;
+    }
+
+    cx_arena_destroy(&arena);
+    return 0;
+}
 
 int main(void) {
     if(test_arena_basic_alloc() != 0) {
@@ -175,6 +326,14 @@ int main(void) {
     }
 
     if(test_arena_small_capacity() != 0) {
+        return 1;
+    }
+
+    if(test_arena_realloc() != 0) {
+        return 1;
+    }
+
+    if(test_arena_realloc_null() != 0) {
         return 1;
     }
 }

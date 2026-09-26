@@ -5,6 +5,7 @@
 #include "cx_core.h"
 #include "cx_types.h"
 #include "cx_vector.h"
+#include "utils.h"
 
 #define CX_VECTOR_INITIAL_CAPACITY 8
 #define CX_VECTOR_GROWTH_FACTOR 2
@@ -17,24 +18,6 @@ struct cx_vector {
     size_t elem_size;
     size_t elem_align;
 };
-
-// TODO: move to util file?
-/*
- * Multiplies two size_t values while checking for overflow.
- *
- * @param a First value.
- * @param b Second value.
- * @param result Pointer to output value.
- * @return true on success, false if the multiplication would overflow.
- */
-static bool cx_checked_mul(size_t a, size_t b, size_t* result) {
-    if(a != 0 && b > SIZE_MAX / a) {
-        return false;
-    }
-
-    *result = a * b;
-    return true;
-}
 
 /*
  * Returns a suitable larger capacity for a vector.

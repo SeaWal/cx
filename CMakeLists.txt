@@ -8,10 +8,14 @@ project(cx
 add_library(cx STATIC 
     src/cx_allocator.c
     src/cx_vector.c
+    src/utils.c
 )
 
-target_include_directories(cx PUBLIC
-    ${PROJECT_SOURCE_DIR}/include
+target_include_directories(cx 
+    PUBLIC
+        ${PROJECT_SOURCE_DIR}/include
+    PRIVATE
+        ${PROJECT_SOURCE_DIR}/src
 )
 
 target_compile_features(cx PUBLIC c_std_11)

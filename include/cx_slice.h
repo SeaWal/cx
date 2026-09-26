@@ -25,7 +25,7 @@ typedef struct cx_slice {
  * @param elem_size Size of each element in bytes.
  * @return A slice describing the memory.
  */
-CX_API cx_slice cx_slice_create(const u8* data, size_t length, size_t elem_size);
+CX_API cx_slice cx_slice_create(const void* data, size_t length, size_t elem_size);
 
 /*
  * Returns whether the slice contains no elements.
@@ -42,7 +42,7 @@ CX_API bool cx_slice_is_empty(const cx_slice* slice);
  * @param index Index of element to get.
  * @return Pointer to the element, or NULL if the index is out of bounds.
  */
-CX_API const u8* cx_slice_get(const cx_slice* slice, size_t index);
+CX_API const void* cx_slice_get(const cx_slice* slice, size_t index);
 
 /*
  * Creates a non-owning subslice.

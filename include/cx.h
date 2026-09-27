@@ -7,6 +7,9 @@ extern "C" {
 
 #include "cx_allocator.h"
 #include "cx_core.h"
+#include "cx_defer.h"
+#include "cx_slice.h"
+#include "cx_vector.h"
 #include "cx_types.h"
 
 #ifdef __cplusplus

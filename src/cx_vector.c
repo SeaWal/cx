@@ -80,7 +80,7 @@ static bool cx_vector_resize_storage(cx_vector* vector, size_t new_capacity) {
     return true;
 }
 
-CX_API cx_vector* cx_vector_create_raw(cx_allocator* allocator, size_t element_size, size_t element_align) {
+cx_vector* cx_vector_create_raw(cx_allocator* allocator, size_t element_size, size_t element_align) {
     if(allocator == NULL || element_size == 0 || element_align == 0) {
         return NULL;
     }
@@ -103,7 +103,7 @@ CX_API cx_vector* cx_vector_create_raw(cx_allocator* allocator, size_t element_s
     return vector;
 }
 
-CX_API void cx_vector_destroy(cx_vector* vector) {
+void cx_vector_destroy(cx_vector* vector) {
     if(vector == NULL) {
         return;
     }
@@ -116,7 +116,7 @@ CX_API void cx_vector_destroy(cx_vector* vector) {
     cx_dealloc(vector->allocator, vector, sizeof(cx_vector), _Alignof(cx_vector));
 }
 
-CX_API size_t cx_vector_length(const cx_vector* vector) {
+size_t cx_vector_length(const cx_vector* vector) {
     if(vector == NULL) {
         return 0;
     }
@@ -124,7 +124,7 @@ CX_API size_t cx_vector_length(const cx_vector* vector) {
     return vector->length;
 }
 
-CX_API size_t cx_vector_capacity(const cx_vector* vector) {
+size_t cx_vector_capacity(const cx_vector* vector) {
     if(vector == NULL) {
         return 0;
     }
@@ -132,11 +132,11 @@ CX_API size_t cx_vector_capacity(const cx_vector* vector) {
     return vector->capacity;
 }
 
-CX_API bool cx_vector_is_empty(const cx_vector* vector) {
+bool cx_vector_is_empty(const cx_vector* vector) {
     return vector == NULL || vector->length == 0;
 }
 
-CX_API bool cx_vector_push_ptr(cx_vector* vector, const void* value) {
+bool cx_vector_push_ptr(cx_vector* vector, const void* value) {
     if (vector == NULL || value == NULL) {
         return false;
     }
@@ -165,7 +165,7 @@ CX_API bool cx_vector_push_ptr(cx_vector* vector, const void* value) {
     return true;
 }
 
-CX_API void* cx_vector_get(cx_vector* vector, size_t index) {
+void* cx_vector_get(cx_vector* vector, size_t index) {
     if(vector == NULL || index >= vector->length) {
         return NULL;
     }
@@ -178,7 +178,7 @@ CX_API void* cx_vector_get(cx_vector* vector, size_t index) {
     return vector->data + offset;
 }
 
-CX_API const void* cx_vector_get_const(const cx_vector* vector, size_t index) {
+const void* cx_vector_get_const(const cx_vector* vector, size_t index) {
     if (vector == NULL || index >= vector->length) {
         return NULL;
     }
@@ -192,7 +192,7 @@ CX_API const void* cx_vector_get_const(const cx_vector* vector, size_t index) {
     return vector->data + offset;
 }
 
-CX_API void cx_vector_clear(cx_vector* vector) {
+void cx_vector_clear(cx_vector* vector) {
     if(vector == NULL) {
         return;
     }
@@ -200,7 +200,7 @@ CX_API void cx_vector_clear(cx_vector* vector) {
     vector->length = 0;
 }
 
-CX_API bool cx_vector_reserve(cx_vector* vector, size_t capacity) {
+bool cx_vector_reserve(cx_vector* vector, size_t capacity) {
     if(vector == NULL) {
         return false;
     }
@@ -213,7 +213,7 @@ CX_API bool cx_vector_reserve(cx_vector* vector, size_t capacity) {
     return cx_vector_resize_storage(vector, capacity);
 }
 
-CX_API bool cx_vector_shrink_to_fit(cx_vector* vector) {
+bool cx_vector_shrink_to_fit(cx_vector* vector) {
     if(vector == NULL) {
         return false;
     }
@@ -226,7 +226,7 @@ CX_API bool cx_vector_shrink_to_fit(cx_vector* vector) {
     return cx_vector_resize_storage(vector, vector->length);
 }
 
-CX_API bool cx_vector_pop(cx_vector* vector, void* out_value) {
+bool cx_vector_pop(cx_vector* vector, void* out_value) {
     if(vector == NULL || vector->length == 0) {
         return false;
     }
@@ -245,7 +245,7 @@ CX_API bool cx_vector_pop(cx_vector* vector, void* out_value) {
     return true;
 }
 
-CX_API bool cx_vector_remove(cx_vector* vector, size_t index) {
+bool cx_vector_remove(cx_vector* vector, size_t index) {
     if (vector == NULL || index >= vector->length) {
         return false;
     }
@@ -276,7 +276,7 @@ CX_API bool cx_vector_remove(cx_vector* vector, size_t index) {
     return true;
 }
 
-CX_API bool cx_vector_insert_ptr(cx_vector* vector, size_t index, const void* value) {
+bool cx_vector_insert_ptr(cx_vector* vector, size_t index, const void* value) {
     if (vector == NULL || value == NULL || index > vector->length) {
         return false;
     }

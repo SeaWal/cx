@@ -4,7 +4,7 @@
 #include "cx_allocator.h"
 #include "cx_core.h"
 
-CX_API void* cx_alloc(cx_allocator* allocator, size_t size, size_t align) {
+void* cx_alloc(cx_allocator* allocator, size_t size, size_t align) {
     if(allocator == NULL || allocator->alloc == NULL) {
         return NULL;
     }
@@ -12,7 +12,7 @@ CX_API void* cx_alloc(cx_allocator* allocator, size_t size, size_t align) {
     return allocator->alloc(allocator->ctx, size, align);
 }
 
-CX_API void cx_dealloc(cx_allocator* allocator, void* ptr, size_t size, size_t align) {
+void cx_dealloc(cx_allocator* allocator, void* ptr, size_t size, size_t align) {
     if(allocator == NULL || allocator->dealloc == NULL) {
         return;
     }
@@ -20,7 +20,7 @@ CX_API void cx_dealloc(cx_allocator* allocator, void* ptr, size_t size, size_t a
     allocator->dealloc(allocator->ctx, ptr, size, align);
 }
 
-CX_API void* cx_realloc(cx_allocator* allocator, void* ptr, size_t old_size, size_t new_size, size_t align) {
+void* cx_realloc(cx_allocator* allocator, void* ptr, size_t old_size, size_t new_size, size_t align) {
     if(allocator == NULL || allocator->realloc == NULL) {
         return NULL;
     }
@@ -59,7 +59,7 @@ static void* cx_general_realloc(void* ctx, void* ptr, size_t old_size, size_t ne
     return realloc(ptr, new_size);
 }
 
-CX_API cx_allocator cx_general_allocator(void) {
+cx_allocator cx_general_allocator(void) {
     return (cx_allocator) {
         .alloc = cx_general_alloc,
         .dealloc = cx_general_dealloc,
@@ -147,7 +147,7 @@ static void* cx_arena_realloc(void* ctx, void* ptr, size_t old_size, size_t new_
     return new_ptr;
 }
 
-CX_API bool cx_arena_init(cx_arena* arena, size_t capacity) {
+bool cx_arena_init(cx_arena* arena, size_t capacity) {
     if(arena == NULL || capacity == 0) {
         return false;
     }
@@ -171,7 +171,7 @@ CX_API bool cx_arena_init(cx_arena* arena, size_t capacity) {
     return true;
 }
 
-CX_API cx_allocator cx_arena_allocator(cx_arena* arena) {
+cx_allocator cx_arena_allocator(cx_arena* arena) {
     if(arena == NULL) {
         return (cx_allocator) { 0 };
     }
@@ -179,7 +179,7 @@ CX_API cx_allocator cx_arena_allocator(cx_arena* arena) {
     return arena->allocator;
 }
 
-CX_API void cx_arena_reset(cx_arena* arena) {
+void cx_arena_reset(cx_arena* arena) {
     if(arena == NULL) {
         return;
     }
@@ -187,8 +187,7 @@ CX_API void cx_arena_reset(cx_arena* arena) {
     arena->pos = 0;
 }
 
-
-CX_API void cx_arena_destroy(cx_arena* arena) {
+void cx_arena_destroy(cx_arena* arena) {
     if(arena == NULL) {
         return;
     }

@@ -7,6 +7,7 @@ extern "C" {
 
 #include "cx_allocator.h"
 #include "cx_core.h"
+#include "cx_slice.h"
 #include "cx_types.h"
 
 typedef struct cx_vector cx_vector;
@@ -182,6 +183,18 @@ CX_API bool cx_vector_remove(cx_vector* vector, size_t index);
  */
 CX_API bool cx_vector_insert_ptr(cx_vector* vector, size_t index, const void* value);
 
+/**
+ * Returns a non-owning, read-only slice over the vector's elements.
+ *
+ * The returned slice does not own the vector's memory and is only valid
+ * while the vector's underlying storage remains valid. Operations that
+ * reallocate the vector may invalidate the slice.
+ *
+ * @param vector The vector to create a slice from.
+ * @return A slice covering all elements in the vector, or an empty slice
+ *         if vector is NULL.
+ */
+CX_API cx_slice cx_vector_as_slice(const cx_vector* vector);
 
 #ifdef __cplusplus
 }

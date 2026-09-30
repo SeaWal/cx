@@ -672,6 +672,60 @@ static int test_arena(void)
     return 0;
 }
 
+static int test_as_slice(void) {
+    cx_allocator allocator = cx_general_allocator();
+
+    cx_vector* vector = cx_vector_create(&allocator, int);
+
+    if (vector == NULL) {
+        return 1;
+    }
+
+    cx_vector_push(vector, int, 10);
+    cx_vector_push(vector, int, 20);
+    cx_vector_push(vector, int, 30);
+
+    cx_slice slice = cx_vector_as_slice(vector);
+
+    if (slice.data != vector->data) {
+        cx_vector_destroy(vector);
+        return 1;
+    }
+
+    if (slice.length != 3) {
+        cx_vector_destroy(vector);
+        return 1;
+    }
+
+    if (slice.elem_size != sizeof(int)) {
+        cx_vector_destroy(vector);
+        return 1;
+    }
+
+    const int* first = cx_slice_get(&slice, 0);
+    const int* second = cx_slice_get(&slice, 1);
+    const int* third = cx_slice_get(&slice, 2);
+
+    if (first == NULL || *first != 10) {
+        cx_vector_destroy(vector);
+        return 1;
+    }
+
+    if (second == NULL || *second != 20) {
+        cx_vector_destroy(vector);
+        return 1;
+    }
+
+    if (third == NULL || *third != 30) {
+        cx_vector_destroy(vector);
+        return 1;
+    }
+
+    cx_vector_destroy(vector);
+
+    return 0;
+}
+
 int main(void)
 {
     if (test_create() != 0) return 1;
@@ -686,6 +740,7 @@ int main(void)
     if (test_insert() != 0) return 1;
     if (test_out_of_bounds() != 0) return 1;
     if (test_arena() != 0) return 1;
+    if(test_as_slice() != 0) return 1;
 
     return 0;
 }

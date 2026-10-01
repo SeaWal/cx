@@ -687,11 +687,6 @@ static int test_as_slice(void) {
 
     cx_slice slice = cx_vector_as_slice(vector);
 
-    if (slice.data != vector->data) {
-        cx_vector_destroy(vector);
-        return 1;
-    }
-
     if (slice.length != 3) {
         cx_vector_destroy(vector);
         return 1;

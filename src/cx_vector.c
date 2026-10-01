@@ -3,6 +3,7 @@
 
 #include "cx_allocator.h"
 #include "cx_core.h"
+#include "cx_slice.h"
 #include "cx_types.h"
 #include "cx_vector.h"
 #include "utils.h"
@@ -321,4 +322,16 @@ bool cx_vector_insert_ptr(cx_vector* vector, size_t index, const void* value) {
     vector->length++;
 
     return true;
+}
+
+cx_slice cx_vector_as_slice(const cx_vector* vector) {
+    if (vector == NULL) {
+        return (cx_slice) { 0 };
+    }
+
+    return (cx_slice) {
+        .data = vector->data,
+        .length = vector->length,
+        .elem_size = vector->elem_size,
+    };
 }

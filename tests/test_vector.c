@@ -721,6 +721,42 @@ static int test_as_slice(void) {
     return 0;
 }
 
+static int test_as_slice_reflects_changes(void) {
+    cx_allocator allocator = cx_general_allocator();
+
+    cx_vector* vector = cx_vector_create(&allocator, int);
+
+    if (vector == NULL) {
+        return 1;
+    }
+
+    cx_vector_push(vector, int, 10);
+    cx_vector_push(vector, int, 20);
+    cx_vector_push(vector, int, 30);
+
+    cx_slice slice = cx_vector_as_slice(vector);
+
+    int* value = cx_vector_get(vector, 1);
+
+    if (value == NULL) {
+        cx_vector_destroy(vector);
+        return 1;
+    }
+
+    *value = 42;
+
+    const int* sliced_value = cx_slice_get(&slice, 1);
+
+    if (sliced_value == NULL || *sliced_value != 42) {
+        cx_vector_destroy(vector);
+        return 1;
+    }
+
+    cx_vector_destroy(vector);
+
+    return 0;
+}
+
 int main(void)
 {
     if (test_create() != 0) return 1;
@@ -736,6 +772,7 @@ int main(void)
     if (test_out_of_bounds() != 0) return 1;
     if (test_arena() != 0) return 1;
     if(test_as_slice() != 0) return 1;
+    if(test_as_slice_reflects_changes() != 0) return 1;
 
     return 0;
 }

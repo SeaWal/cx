@@ -190,6 +190,8 @@ CX_API bool cx_vector_insert_ptr(cx_vector* vector, size_t index, const void* va
  * while the vector's underlying storage remains valid. Operations that
  * reallocate the vector may invalidate the slice.
  *
+ * Operations that reallocate or destroy the vector invalidate the slice.
+ * 
  * @param vector The vector to create a slice from.
  * @return A slice covering all elements in the vector, or an empty slice
  *         if vector is NULL.

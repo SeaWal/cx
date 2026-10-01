@@ -20,6 +20,8 @@ typedef struct cx_slice {
  * The slice does not allocate or free the referenced memory.
  * The referenced memory must remain valid for the lifetime of the slice.
  *
+ * If the underlying storage is reallocated or released, the slice is
+ * invalidated and must not be used.
  * @param data Pointer to the first element.
  * @param length Number of elements.
  * @param elem_size Size of each element in bytes.

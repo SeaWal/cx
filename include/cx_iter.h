@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include "cx_core.h"
+#include "cx_types.h"
 
 /*
  * Opaque iterator used to traverse elements of a container.
@@ -15,8 +16,16 @@ extern "C" {
  *
  * An iterator should be treated as a temporary traversal object and
  * should not be copied after iteration has begun.
+ * 
+ * The context and function pointers are implementation details of the
+ * iterator and should not normally be accessed directly by callers.
  */
-typedef struct cx_iter cx_iter;
+typedef struct cx_iter {
+    void* ctx;
+
+    bool (*next)(struct cx_iter* iter);
+    const void* (*get)(const struct cx_iter* iter);
+} cx_iter;
 
 /*
  * Advances the iterator to the next element.

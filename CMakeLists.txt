@@ -10,6 +10,7 @@ add_library(cx STATIC
     src/cx_vector.c
     src/utils.c
     src/cx_slice.c
+    src/cx_iter.c
 )
 
 target_include_directories(cx 

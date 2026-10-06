@@ -1,5 +1,5 @@
-#ifndef CX_SLICE_H
-#define CX_SLICE_H
+#ifndef CX_ITER_H
+#define CX_ITER_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,6 +25,7 @@ typedef struct cx_iter {
 
     bool (*next)(struct cx_iter* iter);
     const void* (*get)(const struct cx_iter* iter);
+    void (*destroy)(struct cx_iter* iter);
 } cx_iter;
 
 /*
@@ -52,4 +53,4 @@ CX_API const void* cx_iter_get(const cx_iter* iter);
 }
 #endif
 
-#endif // CX_SLICE_H
+#endif // CX_ITER_H

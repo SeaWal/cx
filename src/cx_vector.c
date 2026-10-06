@@ -3,6 +3,7 @@
 
 #include "cx_allocator.h"
 #include "cx_core.h"
+#include "cx_iter.h"
 #include "cx_slice.h"
 #include "cx_types.h"
 #include "cx_vector.h"
@@ -333,5 +334,83 @@ cx_slice cx_vector_as_slice(const cx_vector* vector) {
         .data = vector->data,
         .length = vector->length,
         .elem_size = vector->elem_size,
+    };
+}
+
+typedef struct {
+    const cx_vector* vector;
+    size_t index;
+    bool started;
+} cx_vector_iter_ctx;
+
+static bool cx_vector_iter_next(cx_iter* iter) {
+    cx_vector_iter_ctx* ctx = iter->ctx;
+
+    if (ctx == NULL || ctx->vector == NULL) {
+        return false;
+    }
+
+    if (!ctx->started) {
+        ctx->started = true;
+        return ctx->index < ctx->vector->length;
+    }
+
+    ctx->index++;
+
+    return ctx->index < ctx->vector->length;
+}
+
+static const void* cx_vector_iter_get(const cx_iter* iter) {
+    const cx_vector_iter_ctx* ctx = iter->ctx;
+
+    if (ctx == NULL ||
+        ctx->vector == NULL ||
+        ctx->index >= ctx->vector->length) {
+        return NULL;
+    }
+
+    size_t offset;
+
+    if (!cx_checked_mul(ctx->index, ctx->vector->elem_size, &offset)) {
+        return NULL;
+    }
+
+    return ctx->vector->data + offset;
+}
+
+static void cx_vector_iter_destroy(cx_iter* iter) {
+    cx_vector_iter_ctx* ctx = iter->ctx;
+
+    if (ctx == NULL || ctx->vector == NULL) {
+        return;
+    }
+
+    cx_dealloc(ctx->vector->allocator, ctx, sizeof(cx_vector_iter_ctx), _Alignof(cx_vector_iter_ctx));
+
+    iter->ctx = NULL;
+}
+
+cx_iter cx_vector_iter(const cx_vector* vector) {
+    if (vector == NULL) {
+        return (cx_iter){0};
+    }
+
+    cx_vector_iter_ctx* ctx = cx_alloc(vector->allocator, sizeof(cx_vector_iter_ctx), _Alignof(cx_vector_iter_ctx));
+
+    if (ctx == NULL) {
+        return (cx_iter){0};
+    }
+
+    *ctx = (cx_vector_iter_ctx) {
+        .vector = vector,
+        .index = 0,
+        .started = false,
+    };
+
+    return (cx_iter) {
+        .ctx = ctx,
+        .next = cx_vector_iter_next,
+        .get = cx_vector_iter_get,
+        .destroy = cx_vector_iter_destroy,
     };
 }

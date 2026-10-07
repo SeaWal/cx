@@ -7,6 +7,7 @@ extern "C" {
 
 #include "cx_allocator.h"
 #include "cx_core.h"
+#include "cx_iter.h"
 #include "cx_slice.h"
 #include "cx_types.h"
 
@@ -198,6 +199,19 @@ CX_API bool cx_vector_insert_ptr(cx_vector* vector, size_t index, const void* va
  */
 CX_API cx_slice cx_vector_as_slice(const cx_vector* vector);
 
+/**
+ * Creates an iterator over the vector's current elements.
+ * 
+ * The iterator does not own the vector. The vector must remain valid
+ * for the lifetime of the iterator.
+ *
+ * Operations that reallocate the vector invalidate the iterator.
+ * 
+ * @param vector Vector to iterate over.
+ * @return A vector iterator, or an invalid iterator if vector is NULL
+ *         or the iterator state could not be allocated.
+ */
+CX_API cx_iter cx_vector_iter(const cx_vector* vector);
 #ifdef __cplusplus
 }
 #endif

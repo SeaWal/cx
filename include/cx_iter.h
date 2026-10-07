@@ -49,6 +49,15 @@ CX_API bool cx_iter_next(cx_iter* iter);
  */
 CX_API const void* cx_iter_get(const cx_iter* iter);
 
+/**
+ * Releases resources owned by the iterator.
+ *
+ * The iterator must not be used after destruction.
+ * 
+ * @param iter Iterator to destroy. May be NULL.
+ */
+CX_API void cx_iter_destroy(cx_iter* iter);
+
 #ifdef __cplusplus
 }
 #endif

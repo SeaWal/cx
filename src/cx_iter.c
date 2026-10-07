@@ -15,3 +15,15 @@ const void* cx_iter_get(const cx_iter* iter) {
 
     return iter->get(iter);
 }
+
+void cx_iter_destroy(cx_iter* iter) {
+    if (iter == NULL) {
+        return;
+    }
+
+    if (iter->destroy != NULL) {
+        iter->destroy(iter);
+    }
+
+    *iter = (cx_iter){0};
+}

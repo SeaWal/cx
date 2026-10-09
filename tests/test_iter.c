@@ -70,6 +70,70 @@ static int test_vector_iterator(void) {
     return 0;
 }
 
+static int test_empty_vector_iterator(void) {
+    cx_allocator allocator = cx_general_allocator();
+
+    cx_vector* vector = cx_vector_create(&allocator, int);
+
+    if (vector == NULL) {
+        return 1;
+    }
+
+    cx_iter iter = cx_vector_iter(vector);
+
+    if (cx_iter_next(&iter)) {
+        cx_iter_destroy(&iter);
+        cx_vector_destroy(vector);
+        return 1;
+    }
+
+    if (cx_iter_get(&iter) != NULL) {
+        cx_iter_destroy(&iter);
+        cx_vector_destroy(vector);
+        return 1;
+    }
+
+    cx_iter_destroy(&iter);
+    cx_vector_destroy(vector);
+
+    return 0;
+}
+
+static int test_null_iterator(void) {
+    if (cx_iter_next(NULL)) {
+        return 1;
+    }
+
+    if (cx_iter_get(NULL) != NULL) {
+        return 1;
+    }
+
+    cx_iter_destroy(NULL);
+
+    return 0;
+}
+
+static int test_null_vector_iterator(void) {
+    cx_iter iter = cx_vector_iter(NULL);
+
+    if (cx_iter_next(&iter)) {
+        cx_iter_destroy(&iter);
+        return 1;
+    }
+
+    if (cx_iter_get(&iter) != NULL) {
+        cx_iter_destroy(&iter);
+        return 1;
+    }
+
+    cx_iter_destroy(&iter);
+
+    return 0;
+}
+
 int main(void) {
     if(test_vector_iterator() != 0) return 1;
+    if(test_empty_vector_iterator() != 0) return 1;
+    if(test_null_iterator() != 0) return 1;
+    if(test_null_vector_iterator() != 0) return 1;
 }

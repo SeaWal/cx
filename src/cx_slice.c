@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 #include "cx_slice.h"
 #include "utils.h"
 
@@ -56,5 +58,99 @@ cx_slice cx_slice_subslice(const cx_slice* slice, size_t start, size_t length) {
             : NULL,
         .length = length,
         .elem_size = slice->elem_size,
+    };
+}
+
+typedef struct {
+    const cx_slice* slice;
+    cx_allocator* allocator;
+    size_t index;
+    bool started;
+} cx_slice_iter_ctx;
+
+static bool cx_slice_iter_next(cx_iter* iter) {
+    cx_slice_iter_ctx* ctx = iter->ctx;
+
+    if (ctx == NULL || ctx->slice == NULL) {
+        return false;
+    }
+
+    if (!ctx->started) {
+        ctx->started = true;
+
+        return ctx->index < ctx->slice->length;
+    }
+
+    // Avoid advancing past the final element or wrapping the index.
+    if (ctx->index >= ctx->slice->length ||
+        ctx->index == SIZE_MAX ||
+        ctx->index + 1 >= ctx->slice->length) {
+        ctx->index = ctx->slice->length;
+        return false;
+    }
+
+    ctx->index++;
+
+    return true;
+}
+
+static const void* cx_slice_iter_get(const cx_iter* iter) {
+    const cx_slice_iter_ctx* ctx = iter->ctx;
+
+    if (ctx == NULL ||
+        ctx->slice == NULL ||
+        ctx->index >= ctx->slice->length ||
+        ctx->slice->data == NULL ||
+        ctx->slice->elem_size == 0) {
+        return NULL;
+    }
+
+    size_t offset;
+
+    if (!cx_checked_mul(ctx->index, ctx->slice->elem_size, &offset)) {
+        return NULL;
+    }
+
+    return ctx->slice->data + offset;
+}
+
+static void cx_slice_iter_destroy(cx_iter* iter) {
+    cx_slice_iter_ctx* ctx = iter->ctx;
+
+    if (ctx == NULL) {
+        return;
+    }
+
+    cx_dealloc(ctx->allocator, ctx, sizeof(*ctx), _Alignof(cx_slice_iter_ctx));
+
+    iter->ctx = NULL;
+}
+
+cx_iter cx_slice_iter(const cx_slice* slice, cx_allocator* allocator) {
+    if (slice == NULL ||
+        allocator == NULL ||
+        slice->elem_size == 0 ||
+        (slice->length > 0 && slice->data == NULL)) {
+        return (cx_iter){0};
+    }
+
+    cx_slice_iter_ctx* ctx = cx_alloc(allocator, sizeof(*ctx), _Alignof(cx_slice_iter_ctx));
+
+    if (ctx == NULL) {
+        return (cx_iter){0};
+    }
+
+    *ctx = (cx_slice_iter_ctx) {
+        .slice = slice,
+        .allocator = allocator,
+        .index = 0,
+        .started = false,
+    };
+
+    return (cx_iter) {
+        .ctx = ctx,
+        .next = cx_slice_iter_next,
+        .get = cx_slice_iter_get,
+        .destroy = cx_slice_iter_destroy,
     };
 }

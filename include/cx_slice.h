@@ -5,7 +5,9 @@
 extern "C" {
 #endif
 
+#include "cx_allocator.h"
 #include "cx_core.h"
+#include "cx_iter.h"
 #include "cx_types.h"
 
 typedef struct cx_slice {
@@ -59,6 +61,23 @@ CX_API const void* cx_slice_get(const cx_slice* slice, size_t index);
  */
 CX_API cx_slice cx_slice_subslice(const cx_slice* slice, size_t start, size_t length);
 
+/**
+ * Creates an iterator over the slice's elements.
+ * 
+ * The iterator does not own the slice or its data. Both the slice and
+ * its underlying data must remain valid until the iterator is destroyed.
+ * The allocator must also remain valid until the iterator is destroyed.
+ * @param slice Slice to iterate over.
+ * @param allocator Allocator used for the iterator's internal state.
+ *
+ * @return An iterator, or an invalid iterator if an argument is NULL
+ *         or allocation fails
+ */
+
+CX_API cx_iter cx_slice_iter(
+    const cx_slice* slice,
+    cx_allocator* allocator
+);
 #ifdef __cplusplus
 }
 #endif

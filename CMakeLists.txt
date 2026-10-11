@@ -11,6 +11,7 @@ add_library(cx STATIC
     src/utils.c
     src/cx_slice.c
     src/cx_iter.c
+    src/cx_algorithm.c
 )
 
 target_include_directories(cx 

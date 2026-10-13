@@ -160,6 +160,56 @@ static int test_find_if_missing(void) {
     return found == NULL ? 0 : 1;
 }
 
+/* TEST COUNT */
+static int test_count_values(void) {
+    cx_allocator allocator = cx_general_allocator();
+    int values[] = {10, 20, 10, 30, 10};
+    int target = 10;
+
+    cx_slice slice = cx_slice_create(values, 5, sizeof(int));
+    cx_iter iter = cx_slice_iter(&slice, &allocator);
+
+    size_t count = cx_count(&iter, equals_int, &target);
+
+    cx_iter_destroy(&iter);
+
+    return count == 3 ? 0 : 1;
+}
+
+/* TEST COUNT_IF */
+static int test_count_if_values(void) {
+    cx_allocator allocator = cx_general_allocator();
+    int values[] = {1, 2, 3, 4, 5, 6};
+
+    cx_slice slice = cx_slice_create(values, 6, sizeof(int));
+    cx_iter iter = cx_slice_iter(&slice, &allocator);
+
+    size_t count = cx_count_if(&iter, is_even, NULL);
+
+    cx_iter_destroy(&iter);
+
+    return count == 3 ? 0 : 1;
+}
+
+static int test_count_if_with_context(void) {
+    cx_allocator allocator = cx_general_allocator();
+    int values[] = {10, 20, 30, 40};
+    int threshold = 25;
+
+    cx_slice slice = cx_slice_create(values, 4, sizeof(int));
+    cx_iter iter = cx_slice_iter(&slice, &allocator);
+
+    size_t count = cx_count_if(
+        &iter,
+        greater_than,
+        &threshold
+    );
+
+    cx_iter_destroy(&iter);
+
+    return count == 2 ? 0 : 1;
+}
+
 int main(void)
 {
     if (test_find_existing_value() != 0) return 1;
@@ -168,9 +218,15 @@ int main(void)
     if (test_find_missing_value() != 0) return 1;
     if (test_find_empty_slice() != 0) return 1;
     if (test_find_null_callback() != 0) return 1;
+
     if (test_find_if_predicate() != 0) return 1;
     if (test_find_if_with_context() != 0) return 1;
     if (test_find_if_missing() != 0) return 1;
+
+    if(test_count_values() != 0) return 1;
+
+    if(test_count_if_values() !=0) return 1;
+    if(test_count_if_with_context() != 0) return 1;
 
     return 0;
 }

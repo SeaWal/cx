@@ -83,6 +83,44 @@ CX_API size_t cx_count_if(
     void* context
 );
 
+/**
+ * Checks whether any element satisfies a predicate.
+ * 
+ * An empty sequence returns false.
+ * The caller remains responsible for destroying the iterator.
+ * 
+ * @param iter Iterator to search. The iterator is consumed until a
+ *             match is found or the sequence is exhausted.
+ * @param predicate Returns true when an element satisfies the condition.
+ * @param context User-defined data passed to the predicate.
+ *
+ * @return true if any element satisfies the predicate, false otherwise.
+ */
+CX_API bool cx_any(
+    cx_iter* iter,
+    bool (*predicate)(const void* element, void* context),
+    void* context
+);
+
+/**
+ * Checks whether all elements satisfy a predicate.
+ * 
+ * An empty sequence returns true.
+ * The caller remains responsible for destroying the iterator.
+ * 
+ * @param iter Iterator to search. The iterator is consumed until an
+ *             element fails the predicate or the sequence is exhausted.
+ * @param predicate Returns true when an element satisfies the condition.
+ * @param context User-defined data passed to the predicate.
+ *
+ * @return true if every element satisfies the predicate, false otherwise.
+ */
+CX_API bool cx_all(
+    cx_iter* iter,
+    bool (*predicate)(const void* element, void* context),
+    void* context
+);
+
 #ifdef __cplusplus
 }
 #endif

@@ -87,3 +87,43 @@ size_t cx_count_if(
 
     return count;
 }
+
+bool cx_any(
+    cx_iter* iter,
+    bool (*predicate)(const void* element, void* context),
+    void* context
+) {
+    if (iter == NULL || predicate == NULL) {
+        return false;
+    }
+
+    while (cx_iter_next(iter)) {
+        const void* element = cx_iter_get(iter);
+
+        if (element != NULL && predicate(element, context)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool cx_all(
+    cx_iter* iter,
+    bool (*predicate)(const void* element, void* context),
+    void* context
+) {
+    if (iter == NULL || predicate == NULL) {
+        return false;
+    }
+
+    while (cx_iter_next(iter)) {
+        const void* element = cx_iter_get(iter);
+
+        if (element == NULL || !predicate(element, context)) {
+            return false;
+        }
+    }
+
+    return true;
+}

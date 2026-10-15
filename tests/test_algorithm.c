@@ -268,6 +268,29 @@ static int test_all_of_no_match(void) {
     return result ? 1 : 0;
 }
 
+/* TEST FOR_EACH */
+static void sum_int(const void* element, void* context) {
+    const int* value = element;
+    int* sum = context;
+
+    *sum += *value;
+}
+
+static int test_for_each(void) {
+    cx_allocator allocator = cx_general_allocator();
+    int values[] = {1, 2, 3, 4};
+    int sum = 0;
+
+    cx_slice slice = cx_slice_create(values, 4, sizeof(int));
+    cx_iter iter = cx_slice_iter(&slice, &allocator);
+
+    cx_for_each(&iter, sum_int, &sum);
+
+    cx_iter_destroy(&iter);
+
+    return sum == 10 ? 0 : 1;
+}
+
 int main(void) {
     if (test_find_existing_value() != 0) return 1;
     if (test_find_first_value() != 0) return 1;
@@ -290,6 +313,8 @@ int main(void) {
 
     if(test_all_of_match() != 0) return 1;
     if(test_all_of_no_match() !=0) return 1;
+
+    if(test_for_each() != 0) return 1;
 
     return 0;
 }

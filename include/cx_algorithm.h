@@ -121,6 +121,23 @@ CX_API bool cx_all(
     void* context
 );
 
+/**
+ * Applies a callback to each element in a sequence.
+ *
+ * Elements are visited in iterator order.
+ * If the iterator or callback is NULL, no action is performed.
+ * The caller remains responsible for destroying the iterator.
+ * 
+ * @param iter Iterator to traverse. The iterator is consumed.
+ * @param func Callback invoked for each element.
+ * @param context User-defined data passed to the callback.
+ */
+CX_API void cx_for_each(
+    cx_iter* iter,
+    void (*func)(const void* element, void* context),
+    void* context
+);
+
 #ifdef __cplusplus
 }
 #endif

@@ -127,3 +127,21 @@ bool cx_all(
 
     return true;
 }
+
+void cx_for_each(
+    cx_iter* iter,
+    void (*func)(const void* element, void* context),
+    void* context
+) {
+    if (iter == NULL || func == NULL) {
+        return;
+    }
+
+    while (cx_iter_next(iter)) {
+        const void* element = cx_iter_get(iter);
+
+        if (element != NULL) {
+            func(element, context);
+        }
+    }
+}

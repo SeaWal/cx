@@ -9,16 +9,17 @@ extern "C" {
 #include "cx_types.h"
 
 /*
- * Opaque iterator used to traverse elements of a container.
+ * Generic iterator used to traverse elements of a sequence.
  *
- * Iterators are non-owning. The container being iterated must remain
- * valid for the lifetime of the iterator.
+ * Iterators borrow their underlying container or sequence. The
+ * underlying object and any required allocator must remain valid
+ * until the iterator is destroyed.
  *
- * An iterator should be treated as a temporary traversal object and
- * should not be copied after iteration has begun.
- * 
- * The context and function pointers are implementation details of the
- * iterator and should not normally be accessed directly by callers.
+ * Treat iterators as move-only: do not copy an iterator by value.
+ * Destroy each iterator exactly once.
+ *
+ * Callers should use the public cx_iter_* functions rather than
+ * accessing the context or function pointers directly.
  */
 typedef struct cx_iter {
     void* ctx;
@@ -42,6 +43,7 @@ CX_API bool cx_iter_next(cx_iter* iter);
  * 
  * The returned pointer is non-owning and its lifetime depends on
  * the underlying container.
+ * 
  * @param iter Iterator whose current element should be returned.
  * @return Pointer to the current element, or NULL if the iterator
  *         does not currently refer to an element.

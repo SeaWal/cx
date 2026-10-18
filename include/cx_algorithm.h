@@ -65,6 +65,7 @@ CX_API size_t cx_count(
     const void* target
 );
 
+
 /**
  * Counts elements satisfying a predicate.
  * 
@@ -83,8 +84,11 @@ CX_API size_t cx_count_if(
     void* context
 );
 
+
 /**
  * Checks whether any element satisfies a predicate.
+ * 
+ * Returns true at the first matching element, false if none.
  * 
  * An empty sequence returns false.
  * The caller remains responsible for destroying the iterator.
@@ -102,8 +106,12 @@ CX_API bool cx_any(
     void* context
 );
 
+
 /**
  * Checks whether all elements satisfy a predicate.
+ * 
+ * Returns false at the first element failing the comparison
+ * predicate.
  * 
  * An empty sequence returns true.
  * The caller remains responsible for destroying the iterator.
@@ -120,6 +128,7 @@ CX_API bool cx_all(
     bool (*predicate)(const void* element, void* context),
     void* context
 );
+
 
 /**
  * Applies a callback to each element in a sequence.
@@ -138,6 +147,7 @@ CX_API void cx_for_each(
     void* context
 );
 
+
 /**
  * Accumulates elements into a result by applying a callback
  * to each element in iterator order.
@@ -153,9 +163,9 @@ CX_API void cx_for_each(
  */
 CX_API void cx_accumulate(
     cx_iter* iter,
-    void* initial,
+    void* accumulator,
     void (*accumulate)(
-        void* initial,
+        void* accumulator,
         const void* element,
         void* context
     ),

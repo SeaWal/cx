@@ -201,4 +201,6 @@ int main(void) {
     if(test_null_vector_iterator() != 0) return 1;
     if(test_slice_iterator() != 0) return 1;
     if(test_empty_slice_iterator() != 0) return 1;
+
+    return 0;
 }

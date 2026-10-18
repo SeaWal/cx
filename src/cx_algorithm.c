@@ -148,15 +148,15 @@ void cx_for_each(
 
 void cx_accumulate(
     cx_iter* iter,
-    void* initial,
+    void* accumulator,
     void (*accumulate)(
-        void* initial,
+        void* accumulator,
         const void* element,
         void* context
     ),
     void* context
 ) {
-    if (iter == NULL || initial == NULL || accumulate == NULL) {
+    if (iter == NULL || accumulator == NULL || accumulate == NULL) {
         return;
     }
 
@@ -164,7 +164,7 @@ void cx_accumulate(
         const void* element = cx_iter_get(iter);
 
         if (element != NULL) {
-            accumulate(initial, element, context);
+            accumulate(accumulator, element, context);
         }
     }
 }

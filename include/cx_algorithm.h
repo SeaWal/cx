@@ -138,6 +138,30 @@ CX_API void cx_for_each(
     void* context
 );
 
+/**
+ * Accumulates elements into a result by applying a callback
+ * to each element in iterator order.
+ *
+ * If the iterator, accumulator, or callback is NULL, no accumulation occurs.
+ * The caller remains responsible for destroying the iterator.
+ * 
+ * @param iter Iterator to traverse. The iterator is consumed.
+ * @param initial Pointer to the initial accumulator value and
+ *                    storage for the final result.
+ * @param accumulate Callback that updates the accumulator using an element.
+ * @param context Optional user-defined data passed to the callback.
+ */
+CX_API void cx_accumulate(
+    cx_iter* iter,
+    void* initial,
+    void (*accumulate)(
+        void* initial,
+        const void* element,
+        void* context
+    ),
+    void* context
+);
+
 #ifdef __cplusplus
 }
 #endif

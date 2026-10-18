@@ -145,3 +145,26 @@ void cx_for_each(
         }
     }
 }
+
+void cx_accumulate(
+    cx_iter* iter,
+    void* initial,
+    void (*accumulate)(
+        void* initial,
+        const void* element,
+        void* context
+    ),
+    void* context
+) {
+    if (iter == NULL || initial == NULL || accumulate == NULL) {
+        return;
+    }
+
+    while (cx_iter_next(iter)) {
+        const void* element = cx_iter_get(iter);
+
+        if (element != NULL) {
+            accumulate(initial, element, context);
+        }
+    }
+}

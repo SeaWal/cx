@@ -291,6 +291,35 @@ static int test_for_each(void) {
     return sum == 10 ? 0 : 1;
 }
 
+/* TEST ACCUMULATE */
+static void sum_accumulate(
+    void* initial,
+    const void* element,
+    void* context
+) {
+    (void)context;
+
+    int* sum = initial;
+    const int* value = element;
+
+    *sum += *value;
+}
+
+static int test_accumulate_sum(void) {
+    cx_allocator allocator = cx_general_allocator();
+    int values[] = {1, 2, 3, 4};
+    int sum = 0;
+
+    cx_slice slice = cx_slice_create(values, 4, sizeof(int));
+    cx_iter iter = cx_slice_iter(&slice, &allocator);
+
+    cx_accumulate(&iter, &sum, sum_accumulate, NULL);
+
+    cx_iter_destroy(&iter);
+
+    return sum == 10 ? 0 : 1;
+}
+
 int main(void) {
     if (test_find_existing_value() != 0) return 1;
     if (test_find_first_value() != 0) return 1;
@@ -316,5 +345,7 @@ int main(void) {
 
     if(test_for_each() != 0) return 1;
 
+    if(test_accumulate_sum() != 0) return 1;
+    
     return 0;
 }

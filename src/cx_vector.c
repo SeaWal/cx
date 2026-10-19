@@ -344,6 +344,10 @@ typedef struct {
 } cx_vector_iter_ctx;
 
 static bool cx_vector_iter_next(cx_iter* iter) {
+    if(iter == NULL) {
+        return false;
+    }
+
     cx_vector_iter_ctx* ctx = iter->ctx;
 
     if (ctx == NULL || ctx->vector == NULL) {
@@ -353,6 +357,10 @@ static bool cx_vector_iter_next(cx_iter* iter) {
     if (!ctx->started) {
         ctx->started = true;
         return ctx->index < ctx->vector->length;
+    }
+
+    if(ctx->index >= ctx->vector->length) {
+        ctx->index = ctx->vector->length;
     }
 
     ctx->index++;
@@ -371,7 +379,7 @@ static const void* cx_vector_iter_get(const cx_iter* iter) {
         ctx->vector == NULL ||
         !ctx->started ||
         ctx->index >= ctx->vector->length ||
-        ctx-vector->data == NULL ||
+        ctx->vector->data == NULL ||
         ctx->vector->elem_size == 0) {
         return NULL;
     }
@@ -386,6 +394,10 @@ static const void* cx_vector_iter_get(const cx_iter* iter) {
 }
 
 static void cx_vector_iter_destroy(cx_iter* iter) {
+    if(iter == NULL) {
+        return;
+    }
+
     cx_vector_iter_ctx* ctx = iter->ctx;
 
     if (ctx == NULL || ctx->vector == NULL) {

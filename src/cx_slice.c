@@ -69,6 +69,10 @@ typedef struct {
 } cx_slice_iter_ctx;
 
 static bool cx_slice_iter_next(cx_iter* iter) {
+    if(iter == NULL) {
+        return false;
+    }
+
     cx_slice_iter_ctx* ctx = iter->ctx;
 
     if (ctx == NULL || ctx->slice == NULL) {
@@ -120,6 +124,10 @@ static const void* cx_slice_iter_get(const cx_iter* iter) {
 }
 
 static void cx_slice_iter_destroy(cx_iter* iter) {
+    if(iter == NULL) {
+        return;
+    }
+
     cx_slice_iter_ctx* ctx = iter->ctx;
 
     if (ctx == NULL) {

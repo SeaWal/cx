@@ -320,6 +320,57 @@ static int test_accumulate_sum(void) {
     return sum == 10 ? 0 : 1;
 }
 
+static int test_any_empty_slice(void) {
+    cx_allocator allocator = cx_general_allocator();
+    cx_slice slice = cx_slice_create(NULL, 0, sizeof(int));
+    cx_iter iter = cx_slice_iter(&slice, &allocator);
+
+    bool result = cx_any(&iter, is_even, NULL);
+
+    cx_iter_destroy(&iter);
+    return result ? 1 : 0;
+}
+
+static int test_all_empty_slice(void) {
+    cx_allocator allocator = cx_general_allocator();
+    cx_slice slice = cx_slice_create(NULL, 0, sizeof(int));
+    cx_iter iter = cx_slice_iter(&slice, &allocator);
+
+    bool result = cx_all(&iter, is_even, NULL);
+
+    cx_iter_destroy(&iter);
+    return result ? 0 : 1;
+}
+
+static void accumulate_with_offset(
+    void* accumulator,
+    const void* element,
+    void* context
+) {
+    int* sum = accumulator;
+    const int* offset = context;
+    const int* value = element;
+
+    *sum += *value + *offset;
+}
+
+static int test_accumulate_with_context(void) {
+    cx_allocator allocator = cx_general_allocator();
+    int values[] = {1, 2, 3};
+    int sum = 0;
+    int offset = 10;
+
+    cx_slice slice = cx_slice_create(values, 3, sizeof(int));
+    cx_iter iter = cx_slice_iter(&slice, &allocator);
+
+    cx_accumulate(&iter, &sum, accumulate_with_offset, &offset);
+
+    cx_iter_destroy(&iter);
+
+    /* (1 + 10) + (2 + 10) + (3 + 10) = 36 */
+    return sum == 36 ? 0 : 1;
+}
+
 int main(void) {
     if (test_find_existing_value() != 0) return 1;
     if (test_find_first_value() != 0) return 1;
@@ -346,6 +397,10 @@ int main(void) {
     if(test_for_each() != 0) return 1;
 
     if(test_accumulate_sum() != 0) return 1;
+
+    if(test_any_empty_slice() != 0) return 1;
+    if(test_all_empty_slice() != 0) return 1;
+    if(test_accumulate_with_context() != 0) return 1;
     
     return 0;
 }

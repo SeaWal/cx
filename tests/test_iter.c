@@ -194,6 +194,96 @@ static int test_empty_slice_iterator(void) {
     return 0;
 }
 
+static int test_get_before_first_next(void) {
+    cx_allocator allocator = cx_general_allocator();
+    int values[] = {10, 20, 30};
+    cx_slice slice = cx_slice_create(values, 3, sizeof(int));
+    cx_iter iter = cx_slice_iter(&slice, &allocator);
+
+    if (cx_iter_get(&iter) != NULL) {
+        cx_iter_destroy(&iter);
+        return 1;
+    }
+
+    cx_iter_destroy(&iter);
+    return 0;
+}
+
+static int test_get_after_exhaustion(void) {
+    cx_allocator allocator = cx_general_allocator();
+    int values[] = {10};
+    cx_slice slice = cx_slice_create(values, 1, sizeof(int));
+    cx_iter iter = cx_slice_iter(&slice, &allocator);
+
+    if (!cx_iter_next(&iter)) {
+        cx_iter_destroy(&iter);
+        return 1;
+    }
+
+    if (cx_iter_get(&iter) == NULL) {
+        cx_iter_destroy(&iter);
+        return 1;
+    }
+
+    if (cx_iter_next(&iter)) {
+        cx_iter_destroy(&iter);
+        return 1;
+    }
+
+    if (cx_iter_get(&iter) != NULL) {
+        cx_iter_destroy(&iter);
+        return 1;
+    }
+
+    cx_iter_destroy(&iter);
+    return 0;
+}
+
+static int test_next_repeatedly_after_exhaustion(void) {
+    cx_allocator allocator = cx_general_allocator();
+    cx_slice slice = cx_slice_create(NULL, 0, sizeof(int));
+    cx_iter iter = cx_slice_iter(&slice, &allocator);
+
+    for (int i = 0; i < 3; i++) {
+        if (cx_iter_next(&iter)) {
+            cx_iter_destroy(&iter);
+            return 1;
+        }
+
+        if (cx_iter_get(&iter) != NULL) {
+            cx_iter_destroy(&iter);
+            return 1;
+        }
+    }
+
+    cx_iter_destroy(&iter);
+    return 0;
+}
+
+static int test_destroy_iterator_twice(void) {
+    cx_allocator allocator = cx_general_allocator();
+    int values[] = {10, 20};
+    cx_slice slice = cx_slice_create(values, 2, sizeof(int));
+    cx_iter iter = cx_slice_iter(&slice, &allocator);
+
+    if (iter.ctx == NULL) {
+        return 1;
+    }
+
+    cx_iter_destroy(&iter);
+    cx_iter_destroy(&iter);
+
+    if (cx_iter_next(&iter)) {
+        return 1;
+    }
+
+    if (cx_iter_get(&iter) != NULL) {
+        return 1;
+    }
+
+    return 0;
+}
+
 int main(void) {
     if(test_vector_iterator() != 0) return 1;
     if(test_empty_vector_iterator() != 0) return 1;
@@ -201,6 +291,10 @@ int main(void) {
     if(test_null_vector_iterator() != 0) return 1;
     if(test_slice_iterator() != 0) return 1;
     if(test_empty_slice_iterator() != 0) return 1;
+    if(test_get_before_first_next() != 0) return 1;
+    if(test_get_after_exhaustion() != 0) return 1;
+    if(test_next_repeatedly_after_exhaustion() != 0) return 1;
+    if(test_destroy_iterator_twice() != 0) return 1;
 
     return 0;
 }

@@ -95,10 +95,15 @@ static bool cx_slice_iter_next(cx_iter* iter) {
 }
 
 static const void* cx_slice_iter_get(const cx_iter* iter) {
+    if(iter == NULL) {
+        return NULL;
+    }
+
     const cx_slice_iter_ctx* ctx = iter->ctx;
 
     if (ctx == NULL ||
         ctx->slice == NULL ||
+        !ctx->started ||
         ctx->index >= ctx->slice->length ||
         ctx->slice->data == NULL ||
         ctx->slice->elem_size == 0) {

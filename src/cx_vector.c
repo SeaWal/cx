@@ -361,11 +361,18 @@ static bool cx_vector_iter_next(cx_iter* iter) {
 }
 
 static const void* cx_vector_iter_get(const cx_iter* iter) {
+    if(iter == NULL) {
+        return NULL;
+    }
+
     const cx_vector_iter_ctx* ctx = iter->ctx;
 
     if (ctx == NULL ||
         ctx->vector == NULL ||
-        ctx->index >= ctx->vector->length) {
+        !ctx->started ||
+        ctx->index >= ctx->vector->length ||
+        ctx-vector->data == NULL ||
+        ctx->vector->elem_size == 0) {
         return NULL;
     }
 
